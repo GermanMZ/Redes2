@@ -1,0 +1,51 @@
+version: "3.5"
+services:
+  mongo-container:
+    container_name: mongo-container
+    build:
+      dockerfile: DockerFile
+      context: ./database
+    volumes:
+      - ./database/data:/data/db
+    ports:
+      - "27017:27017"
+    restart: on-failure
+
+  servidor1:
+    container_name: service1
+    build:
+      dockerfile: DockerFile
+      context: ./servidor1
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo-container
+    links:
+      - mongo-container
+    restart: on-failure
+
+  servidor2:
+    container_name: service2
+    build:
+      dockerfile: DockerFile
+      context: ./servidor2
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mongo-container
+    links:
+      - mongo-container
+    restart: on-failure
+
+  servidor3:
+    container_name: service3
+    build:
+      dockerfile: DockerFile
+      context: ./servidor3
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongo-container
+    links:
+      - mongo-container
+    restart: on-failure
