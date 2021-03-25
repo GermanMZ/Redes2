@@ -9,6 +9,8 @@ services:
       - ./database/data:/data/db
     ports:
       - "27017:27017"
+    networks:
+      - red-servidores
     restart: on-failure
 
   servidor1:
@@ -22,6 +24,8 @@ services:
       - mongo-container
     links:
       - mongo-container
+    networks:
+        ipv4_address: 10.5.0.2
     restart: on-failure
 
   servidor2:
@@ -35,6 +39,8 @@ services:
       - mongo-container
     links:
       - mongo-container
+      networks:
+      ipv4_address: 10.5.0.3
     restart: on-failure
 
   servidor3:
@@ -48,4 +54,29 @@ services:
       - mongo-container
     links:
       - mongo-container
+    networks:
+      ipv4_address: 10.5.0.4
     restart: on-failure
+
+    nginx:
+    image: nginx:latest
+    volumes:
+      - .load-balancer/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - servidor1
+      - servidor2
+      - servidor3
+    ports:
+      - "4000:4000"
+    networks:
+      - red-servidores
+
+
+networks:
+  default:
+    name: red-servidores
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/16
+         gateway: 10.5.0.1
